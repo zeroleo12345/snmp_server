@@ -43,8 +43,11 @@ def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
             oid_str, value = pick(row)
             #  log.info(f"{oid_str}: {value}")
             oid_int, label, suffix = mibView.getNodeName(tuple(int(s) for s in oid_str.split('.')))
-            log.info(f'[ {label[-1]} : {value} ]')
+            last_label = label[-1]
+            log.info(f'[ {last_label} : {value} ]')
             # hh3cNqaReactCurrentStatus : 1-inactive关闭; 2-告警中; 3-active开启;
+            if  last_label == 'hh3cNqaReactCurrentStatus' and str(value) == '2':
+                log.warn('network lag > 300ms')
     return wholeMsg
  
 
