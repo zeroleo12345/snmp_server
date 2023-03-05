@@ -22,5 +22,5 @@ services:
     volumes:
       - .:/app
     entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/snmp.sh; fi'
-    restart: unless-stopped
+    restart: "${RESTART_POLICY}"
     logging: *default_logging
