@@ -1,4 +1,5 @@
 import re
+import traceback
 # 第三方库
 from pysnmp.carrier.asynsock.dispatch import AsynsockDispatcher
 from pysnmp.carrier.asynsock.dgram import udp, udp6
@@ -30,13 +31,17 @@ def pick(varbind):
 def callback(transportDispatcher, transportDomain, ip_and_port, wholeMsg):
     ip, port = ip_and_port
     while wholeMsg:
-        msgVer = int(api.decodeMessageVersion(wholeMsg))
-        if msgVer in api.protoModules:
-            pMod = api.protoModules[msgVer]
-        else:
-            log.info(f'Unsupported SNMP version {msgVer}')
+        try:
+            msgVer = int(api.decodeMessageVersion(wholeMsg))
+            if msgVer in api.protoModules:
+                pMod = api.protoModules[msgVer]
+            else:
+                log.info(f'Unsupported SNMP version {msgVer}')
+                return
+            reqMsg, wholeMsg = decoder.decode(wholeMsg, asn1Spec=pMod.Message(),)
+        except Exception:
+            log.trace(traceback.format_exc())
             return
-        reqMsg, wholeMsg = decoder.decode(wholeMsg, asn1Spec=pMod.Message(),)
         log.info(f'Notification message from {transportDomain}, ip: {ip}, port: {port}')
         reqPDU = pMod.apiMessage.getPDU(reqMsg)
         varBinds = pMod.apiPDU.getVarBindList(reqPDU)
