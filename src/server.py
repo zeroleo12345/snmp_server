@@ -5,9 +5,11 @@ from pysnmp.carrier.asynsock.dgram import udp, udp6
 from pyasn1.codec.ber import decoder
 from pysnmp.proto import api
 from pysnmp.proto.rfc1905 import VarBind
+from pysnmp.smi import builder, view, compiler
 # 自己的库
 from settings import log, SNMP_PORT
-from pysnmp.smi import builder, view, compiler
+from utils.feishu import Feishu
+
 
 mibBuilder = builder.MibBuilder()
 mibBuilder.addMibSources(builder.DirMibSource('/root/.pysnmp/mibs/'))
@@ -25,16 +27,17 @@ def pick(varbind):
         return False
  
 
-def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
+def callback(transportDispatcher, transportDomain, ip_and_port, wholeMsg):
+    ip, port = ip_and_port
     while wholeMsg:
         msgVer = int(api.decodeMessageVersion(wholeMsg))
         if msgVer in api.protoModules:
             pMod = api.protoModules[msgVer]
         else:
-            log.info('Unsupported SNMP version %s' % msgVer)
+            log.info(f'Unsupported SNMP version {msgVer}')
             return
         reqMsg, wholeMsg = decoder.decode(wholeMsg, asn1Spec=pMod.Message(),)
-        log.info('Notification message from %s:%s: ' % (transportDomain, transportAddress))
+        log.info(f'Notification message from {transportDomain}, ip: {ip}, port: {port}')
         reqPDU = pMod.apiMessage.getPDU(reqMsg)
         varBinds = pMod.apiPDU.getVarBindList(reqPDU)
         for row in varBinds:
@@ -47,7 +50,9 @@ def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
             log.info(f'[ {last_label} : {value} ]')
             # hh3cNqaReactCurrentStatus : 1-inactive关闭; 2-告警中; 3-active开启;
             if  last_label == 'hh3cNqaReactCurrentStatus' and str(value) == '2':
-                log.warn('network lag > 300ms')
+                msg = f'network lag > 300ms. ip: {ip}'
+                log.warning(msg)
+                Feishu.send_groud_msg(receiver_id=Feishu.FEISHU_SESSION_CHAT_ID, text=msg)
     return wholeMsg
  
 
@@ -55,7 +60,7 @@ def main():
     listen_ip = '0.0.0.0'
     listen_port = SNMP_PORT
     transportDispatcher = AsynsockDispatcher()
-    transportDispatcher.registerRecvCbFun(cbFun)
+    transportDispatcher.registerRecvCbFun(callback)
     # UDP/IPv4
     transportDispatcher.registerTransport(
         udp.domainName, udp.UdpSocketTransport().openServerMode((listen_ip, listen_port))
