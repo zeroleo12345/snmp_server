@@ -7,6 +7,12 @@ from pysnmp.proto import api
 from pysnmp.proto.rfc1905 import VarBind
 # 自己的库
 from settings import log, SNMP_PORT
+from pysnmp.smi import builder, view, compiler
+
+mibBuilder = builder.MibBuilder()
+mibBuilder.addMibSources(builder.DirMibSource('/root/.pysnmp/mibs/'))
+mibBuilder.loadModules('HH3C-NQA-MIB')
+mibView = view.MibViewController(mibBuilder)
  
 
 def pick(varbind):
@@ -28,18 +34,16 @@ def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
             log.info('Unsupported SNMP version %s' % msgVer)
             return
         reqMsg, wholeMsg = decoder.decode(wholeMsg, asn1Spec=pMod.Message(),)
-        # log.info("reqmsg:", reqMsg)
-        # log.info("wholemsg:",wholeMsg)
         log.info('Notification message from %s:%s: ' % (transportDomain, transportAddress))
         reqPDU = pMod.apiMessage.getPDU(reqMsg)
-        # log.info("pdu:",reqPDU)
         varBinds = pMod.apiPDU.getVarBindList(reqPDU)
-        # log.info("varbinds:",varBinds)
         for row in varBinds:
             row: VarBind
             row = row.prettyPrint()
-            k, v = pick(row)
-            log.info("%s:%s" % (k,v))
+            oid_str, value = pick(row)
+            #  log.info(f"{oid_str}: {value}")
+            oid_int, label, suffix = mibView.getNodeName(tuple(int(s) for s in oid_str.split('.')))
+            log.info(f'[{label[-1]} : {value}]. oid: {oid_str}')
     return wholeMsg
  
 

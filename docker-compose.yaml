@@ -21,6 +21,7 @@ services:
       SNMP_PORT: 162
     volumes:
       - .:/app
+      - ./mibs/:/root/.pysnmp/mibs/
     entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/snmp.sh; fi'
     restart: "${RESTART_POLICY}"
     logging: *default_logging
