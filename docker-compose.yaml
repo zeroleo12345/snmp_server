@@ -18,7 +18,6 @@ services:
     ports:
       - "162:162/udp"
     environment:
-      ENVIRONMENT: "${ENVIRONMENT}"
       SNMP_PORT: 162
     volumes:
       - .:/app
