@@ -10,6 +10,8 @@ from loguru import logger as log
 SENTRY_DSN = config('SENTRY_DSN', mandatory=False)
 sentry_sdk.init(SENTRY_DSN)
 
+SNMP_PORT = config('SNMP_PORT', default=162)
+
 # Log
 LOG_LEVEL = config('LOG_LEVEL')
 # 初始化日志

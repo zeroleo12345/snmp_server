@@ -6,7 +6,7 @@ from pyasn1.codec.ber import decoder
 from pysnmp.proto import api
 from pysnmp.proto.rfc1905 import VarBind
 # 自己的库
-from settings import log
+from settings import log, SNMP_PORT
  
 
 def pick(varbind):
@@ -45,7 +45,7 @@ def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
 
 def main():
     listen_ip = '0.0.0.0'
-    listen_port = 162
+    listen_port = SNMP_PORT
     transportDispatcher = AsynsockDispatcher()
     transportDispatcher.registerRecvCbFun(cbFun)
     # UDP/IPv4
