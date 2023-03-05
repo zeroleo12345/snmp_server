@@ -44,6 +44,7 @@ def cbFun(transportDispatcher, transportDomain, transportAddress, wholeMsg):
             #  log.info(f"{oid_str}: {value}")
             oid_int, label, suffix = mibView.getNodeName(tuple(int(s) for s in oid_str.split('.')))
             log.info(f'[{label[-1]} : {value}]. oid: {oid_str}')
+            # hh3cNqaReactCurrentStatus : 1-inactive关闭; 2-告警中; 3-active开启;
     return wholeMsg
  
 
