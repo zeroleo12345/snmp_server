@@ -18,33 +18,33 @@ mibBuilder.loadModules('HH3C-NQA-MIB')
 mibView = view.MibViewController(mibBuilder)
  
 
-def pick(varbind):
-    pattern="name=(.*)[\s\S]*value=(.*)"
-    regx = re.compile(pattern)
-    matchs = regx.findall(varbind)
+def pick(var_bind):
+    pattern = "name=(.*)[\s\S]*value=(.*)"
+    regex = re.compile(pattern)
+    matchs = regex.findall(var_bind)
     if matchs:
-        return matchs[0][0],matchs[0][1]
+        return matchs[0][0], matchs[0][1]
     else:
         return False
  
 
-def callback(transportDispatcher, transportDomain, ip_and_port, wholeMsg):
+def callback(transport_dispatcher, transport_domain, ip_and_port, whole_msg):
     ip, port = ip_and_port
-    while wholeMsg:
+    while whole_msg:
         try:
-            msgVer = int(api.decodeMessageVersion(wholeMsg))
-            if msgVer in api.protoModules:
-                pMod = api.protoModules[msgVer]
+            msg_version = int(api.decodeMessageVersion(whole_msg))
+            if msg_version in api.protoModules:
+                proto_module = api.protoModules[msg_version]
             else:
-                log.info(f'Unsupported SNMP version {msgVer}')
+                log.info(f'Unsupported SNMP version {msg_version}')
                 return
-            reqMsg, wholeMsg = decoder.decode(wholeMsg, asn1Spec=pMod.Message(),)
+            req_msg, whole_msg = decoder.decode(whole_msg, asn1Spec=proto_module.Message(),)
         except Exception:
             log.trace(traceback.format_exc())
             return
-        log.info(f'Notification message from {transportDomain}, ip: {ip}, port: {port}')
-        reqPDU = pMod.apiMessage.getPDU(reqMsg)
-        varBinds = pMod.apiPDU.getVarBindList(reqPDU)
+        log.info(f'Notification message from {transport_domain}, ip: {ip}, port: {port}')
+        reqPDU = proto_module.apiMessage.getPDU(req_msg)
+        varBinds = proto_module.apiPDU.getVarBindList(reqPDU)
         for row in varBinds:
             row: VarBind
             row = row.prettyPrint()
@@ -54,32 +54,32 @@ def callback(transportDispatcher, transportDomain, ip_and_port, wholeMsg):
             last_label = label[-1]
             log.info(f'[ {last_label} : {value} ]')
             # hh3cNqaReactCurrentStatus : 1-inactive关闭; 2-告警中; 3-active开启;
-            if  last_label == 'hh3cNqaReactCurrentStatus' and str(value) == '2':
+            if last_label == 'hh3cNqaReactCurrentStatus' and str(value) == '2':
                 msg = f'network lag > 300ms. ip: {ip}'
                 log.warning(msg)
                 Feishu.send_groud_msg(receiver_id=Feishu.FEISHU_SESSION_CHAT_ID, text=msg)
-    return wholeMsg
+    return whole_msg
  
 
 def main():
     listen_ip = '0.0.0.0'
     listen_port = SNMP_PORT
-    transportDispatcher = AsynsockDispatcher()
-    transportDispatcher.registerRecvCbFun(callback)
+    dispatcher = AsynsockDispatcher()
+    dispatcher.registerRecvCbFun(callback)
     # UDP/IPv4
-    transportDispatcher.registerTransport(
+    dispatcher.registerTransport(
         udp.domainName, udp.UdpSocketTransport().openServerMode((listen_ip, listen_port))
     )
     # UDP/IPv6
-    #  transportDispatcher.registerTransport(
+    #  dispatcher.registerTransport(
         #  udp6.domainName, udp6.Udp6SocketTransport().openServerMode(('::1', listen_port))
     #  )
     log.info(f'listening on {listen_ip}:{listen_port}')
-    transportDispatcher.jobStarted(1)
+    dispatcher.jobStarted(1)
     try:
-        transportDispatcher.runDispatcher()
-    except:
-        transportDispatcher.closeDispatcher()
+        dispatcher.runDispatcher()
+    except Exception as e:
+        dispatcher.closeDispatcher()
         raise
  
 
