@@ -2,7 +2,7 @@ import re
 import traceback
 # 第三方库
 from pysnmp.carrier.asynsock.dispatch import AsynsockDispatcher
-from pysnmp.carrier.asynsock.dgram import udp, udp6
+from pysnmp.carrier.asynsock.dgram import udp
 from pyasn1.codec.ber import decoder
 from pysnmp.proto import api
 from pysnmp.proto.rfc1905 import VarBind
@@ -46,8 +46,7 @@ def callback(transport_dispatcher, transport_domain, ip_and_port, whole_msg):
         reqPDU = proto_module.apiMessage.getPDU(req_msg)
         varBinds = proto_module.apiPDU.getVarBindList(reqPDU)
         for row in varBinds:
-            row: VarBind
-            row = row.prettyPrint()
+            row: VarBind = row.prettyPrint()
             oid_str, value = pick(row)
             #  log.info(f"{oid_str}: {value}")
             oid_int, label, suffix = mibView.getNodeName(tuple(int(s) for s in oid_str.split('.')))
