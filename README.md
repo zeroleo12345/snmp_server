@@ -1,3 +1,6 @@
+## Reference
+https://pysnmp.readthedocs.io/en/latest/examples/v1arch/asyncore/manager/ntfrcv/transport-tweaks.html
+
 
 ## Download mib
 https://mibs.thola.io/pysnmp/

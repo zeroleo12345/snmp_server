@@ -39,7 +39,7 @@ def callback(transport_dispatcher, transport_domain, ip_and_port, whole_msg):
                 log.info(f'Unsupported SNMP version {msg_version}')
                 return
             req_msg, whole_msg = decoder.decode(whole_msg, asn1Spec=proto_module.Message(),)
-        except Exception:
+        except Exception as e:
             log.trace(traceback.format_exc())
             return
         log.info(f'Notification message from {transport_domain}, ip: {ip}, port: {port}')
