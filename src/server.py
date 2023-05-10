@@ -44,8 +44,8 @@ def callback(transport_dispatcher, transport_domain, ip_and_port, whole_msg):
             return
         log.info(f'Notification message from {transport_domain}, ip: {ip}, port: {port}')
         reqPDU = proto_module.apiMessage.getPDU(req_msg)
-        varBinds = proto_module.apiPDU.getVarBindList(reqPDU)
-        for row in varBinds:
+        variable_binds = proto_module.apiPDU.getVarBindList(reqPDU)
+        for row in variable_binds:
             row: VarBind = row.prettyPrint()
             oid_str, value = pick(row)
             #  log.info(f"{oid_str}: {value}")
