@@ -81,7 +81,7 @@ def main():
     try:
         dispatcher.runDispatcher()
     finally:
-        dispatcher.closeDispatcher()k
+        dispatcher.closeDispatcher()
  
 
 if __name__ == '__main__':
