@@ -34,17 +34,18 @@ def callback(transport_dispatcher, transport_domain, ip_and_port, whole_msg):
         try:
             msg_version = int(api.decodeMessageVersion(whole_msg))
             if msg_version in api.protoModules:
-                proto_module = api.protoModules[msg_version]
+                proto = api.protoModules[msg_version]
             else:
                 log.info(f'Unsupported SNMP version {msg_version}')
                 return
-            req_msg, whole_msg = decoder.decode(whole_msg, asn1Spec=proto_module.Message(),)
+            req_msg, whole_msg = decoder.decode(whole_msg, asn1Spec=proto.Message(),)
         except Exception as e:
             log.trace(traceback.format_exc())
             return
-        log.info(f'Notification message from {transport_domain}, ip: {ip}, port: {port}')
-        reqPDU = proto_module.apiMessage.getPDU(req_msg)
-        variable_binds = proto_module.apiPDU.getVarBindList(reqPDU)
+        community = proto.apiMessage.getCommunity(req_msg).asOctets().decode()
+        log.info(f'Notification message from {transport_domain}, ip: {ip}, port: {port}, community: {community}')
+        pdu = proto.apiMessage.getPDU(req_msg)
+        variable_binds = proto.apiPDU.getVarBindList(pdu)
         for row in variable_binds:
             row: VarBind = row.prettyPrint()
             oid_str, value = pick(row)
