@@ -29,7 +29,7 @@ def pick(var_bind):
  
 
 # https://pysnmp.readthedocs.io/en/latest/examples/v1arch/asyncore/manager/cmdgen/transport-tweaks.html
-def callback(transport_dispatcher, transport_domain, ip_and_port, whole_msg):
+def callback(dispatcher, transport_domain, ip_and_port, whole_msg):
     ip, port = ip_and_port
     while whole_msg:
         try:
