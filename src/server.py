@@ -28,6 +28,7 @@ def pick(var_bind):
         return False
  
 
+# https://pysnmp.readthedocs.io/en/latest/examples/v1arch/asyncore/manager/cmdgen/transport-tweaks.html
 def callback(transport_dispatcher, transport_domain, ip_and_port, whole_msg):
     ip, port = ip_and_port
     while whole_msg:
@@ -38,7 +39,7 @@ def callback(transport_dispatcher, transport_domain, ip_and_port, whole_msg):
             else:
                 log.info(f'Unsupported SNMP version {msg_version}')
                 return
-            req_msg, whole_msg = decoder.decode(whole_msg, asn1Spec=proto.Message(),)
+            req_msg, whole_msg = decoder.decode(whole_msg, asn1Spec=proto.Message())
         except Exception as e:
             log.trace(traceback.format_exc())
             return
@@ -66,21 +67,21 @@ def main():
     listen_port = SNMP_PORT
     dispatcher = AsynsockDispatcher()
     dispatcher.registerRecvCbFun(callback)
+
     # UDP/IPv4
     dispatcher.registerTransport(
         udp.domainName, udp.UdpSocketTransport().openServerMode((listen_ip, listen_port))
     )
-    # UDP/IPv6
-    #  dispatcher.registerTransport(
-        #  udp6.domainName, udp6.Udp6SocketTransport().openServerMode(('::1', listen_port))
-    #  )
     log.info(f'listening on {listen_ip}:{listen_port}')
+
+    # We might never receive any response as we sent request with fake source IP
     dispatcher.jobStarted(1)
+
+    # Dispatcher will finish as all jobs counter reaches zero
     try:
         dispatcher.runDispatcher()
-    except Exception as e:
-        dispatcher.closeDispatcher()
-        raise
+    finally:
+        dispatcher.closeDispatcher()k
  
 
 if __name__ == '__main__':
