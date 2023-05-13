@@ -56,7 +56,7 @@ def callback(dispatcher, transport_domain, ip_and_port, whole_msg):
             log.info(f'[ {last_label} : {value} ]')
             # hh3cNqaReactCurrentStatus : 1-inactive关闭; 2-告警中; 3-active开启;
             if last_label == 'hh3cNqaReactCurrentStatus' and str(value) == '2':
-                msg = f'network lag > 300ms. ip: {ip}'
+                msg = f'network lag > 300ms. ip: {ip}, community: {community}'
                 log.warning(msg)
                 Feishu.send_groud_msg(receiver_id=Feishu.FEISHU_SESSION_CHAT_ID, text=msg)
     return whole_msg
