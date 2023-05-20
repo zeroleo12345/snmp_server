@@ -1,3 +1,9 @@
+## NMS
+实现 Network Management Station (NMS)
+UDP 161端口接收snmp消息
+UDP 162端口接收trap消息
+
+
 ## Reference
 https://pysnmp.readthedocs.io/en/latest/examples/v1arch/asyncore/manager/ntfrcv/transport-tweaks.html
 
