@@ -44,7 +44,7 @@ def callback(dispatcher, transport_domain, ip_and_port, whole_msg):
             log.trace(traceback.format_exc())
             return
         community = proto.apiMessage.getCommunity(req_msg).asOctets().decode()
-        log.info(f'Notification message from {transport_domain}, ip: {ip}, port: {port}, community: {community}')
+        log.info(f'msg from {transport_domain}, ip: {ip}, port: {port}, community: {community}')
         pdu = proto.apiMessage.getPDU(req_msg)
         variable_binds = proto.apiPDU.getVarBindList(pdu)
         pkt = {}
