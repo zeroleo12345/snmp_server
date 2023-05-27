@@ -55,9 +55,14 @@ def callback(dispatcher, transport_domain, ip_and_port, whole_msg):
             oid_int, label, suffix = mibView.getNodeName(tuple(int(s) for s in oid_str.split('.')))
             last_label = label[-1]
             pkt[last_label] = value
+
+        if pkt.get('hh3cIpAddrMIB'):
+            #  {'sysUpTime': '43593182', 'snmpTrapOID': '1.3.6.1.4.1.25506.2.67.2.2.0.1', 'hh3cIpAddrMIB': '43593100'}
+            break
+
         log.info(f'packet: {pkt}')
-        # hh3cNqaReactCurrentStatus : 1-inactive关闭; 2-告警中; 3-active开启;
         if pkt.get('hh3cNqaReactCurrentStatus', None) == '2':
+            # hh3cNqaReactCurrentStatus : 1-inactive关闭; 2-告警中; 3-active开启;
             msg = f"{pkt['pingCtlDescr']}. ip: {ip}, community: {community}"
             log.warning(msg)
             Feishu.send_groud_msg(receiver_id=Feishu.FEISHU_SESSION_CHAT_ID, text=msg)
