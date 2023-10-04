@@ -15,7 +15,7 @@ from settings import log, COMMUNITY_NAME
 class Mib(object):
     oid_map = {
         'sysName': '1.3.6.1.2.1.1.5.0',
-        'ifDescr': '1.3.6.1.2.1.2.2.1.2',
+        'ifDescr': '1.3.6.1.2.1.2.2.1.2', # 1: down;  2: up;  3: down;  4: down;
         'ifOperStatus': '1.3.6.1.2.1.2.2.1.8',
     }
 
@@ -114,5 +114,6 @@ if __name__ == "__main__":
     mib = Mib()
     mib.get('sysName')
     log.info('============================')
-    #  mib.get_all('ifDescr')
+    mib.get_all('ifDescr')
+    log.info('============================')
     mib.get_all('ifOperStatus')
