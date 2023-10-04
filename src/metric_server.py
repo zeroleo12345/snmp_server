@@ -106,6 +106,7 @@ class Human2(object):
         except StopIteration:
             log.info('Get interface list done.')
 
+
 class Human(object):
     oid_map = {
         'sysName': '1.3.6.1.2.1.1.5.0',
@@ -113,7 +114,6 @@ class Human(object):
     }
 
     def __init__(self):
-        print('Hi，我是 Human 类的初始化方法')
         # 初始化引擎
         self.engine = SnmpEngine()
 
@@ -141,7 +141,7 @@ class Human(object):
         self.target = UdpTransportTarget(ip_port)
         # 实例化上下文对象
         self.context = ContextData()
-        print(1111111111)
+        print('Hi，我是 Human 类的初始化方法')
 
     def get(self, metric_name):
         log.info(f'get metric: {metric_name}')
