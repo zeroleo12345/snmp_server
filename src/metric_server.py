@@ -13,6 +13,11 @@ from settings import log, COMMUNITY_NAME
 
 
 class Mib(object):
+    oid_map = {
+        'sysName': '1.3.6.1.2.1.1.5.0',
+        'ifOperStatus': '1.3.6.1.2.1.2.2.1.8',
+    }
+
     def __init__(self):
         # 初始化引擎
         self.engine = SnmpEngine()
@@ -39,11 +44,12 @@ class Mib(object):
         # 实例化上下文对象
         self.context = ContextData()
         
-    def get(self):
+    def get(self, metric_name):
         # ObjectIdentity 类负责 MIB 对象的识别:
 
         # 方法1: 指定要查询的 OID 对象或名称
-        _id = '1.3.6.1.2.1.1.5.0'
+        _id = self.oid_map[metric_name]
+        log.info(f'get metric: {metric_name}, id: {_id}')
         oid = ObjectIdentity(_id)
         
         # 方法2: 通过oid名字查询
@@ -63,13 +69,14 @@ class Mib(object):
             print(i)
 
 
-    def get_all(self,):
+    def get_all(self, metric_name):
         """
         这个函数是查询接口列表, 和上面查询 sysName 的区别是使用了 nextCmd 来获取一个 MIB 子树的全部内容
         主要是 `lexicographicMode=False` 参数, 默认为 `True`, 会一直查询到 MIB 树结束.
         """
         # 方法1: 指定要查询的 OID 对象或名称
-        _id = '1.3.6.1.2.1.2.2.1.8'
+        _id = self.oid_map[metric_name]
+        log.info(f'get metric: {metric_name}, id: {_id}')
         oid = ObjectIdentity(_id)
 
         # 方法2: 通过oid名字查询
@@ -99,6 +106,6 @@ class Mib(object):
 
 if __name__ == "__main__":
     mib = Mib()
-    mib.get()
-    print('============================')
-    mib.get_all()
+    mib.get(metric_name='sysName')
+    log.info('============================')
+    mib.get_all(metric_name='ifOperStatus')
