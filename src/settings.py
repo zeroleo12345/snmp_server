@@ -11,6 +11,7 @@ SENTRY_DSN = config('SENTRY_DSN', mandatory=False)
 sentry_sdk.init(SENTRY_DSN)
 
 SNMP_PORT = config('SNMP_PORT', default=162)
+COMMUNITY_NAME = config('COMMUNITY_NAME', default='zhoulixin')
 
 # Log
 LOG_LEVEL = config('LOG_LEVEL')

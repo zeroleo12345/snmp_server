@@ -7,7 +7,7 @@ ac配置参考:
 
 # 导入高层 API
 from pysnmp.hlapi import *
-from settings import log
+from settings import log, COMMUNITY_NAME
 
 
 class Mib(object):
@@ -27,7 +27,7 @@ class Mib(object):
         # self.communityData = CommunityData('public', mpModel=0)
 
         # SNMPv2c
-        self.communityData = CommunityData('zhoulixin', mpModel=1)
+        self.communityData = CommunityData(COMMUNITY_NAME, mpModel=1)
 
         # SNMPv3, 则需要用户凭证, 使用 UsmUserData 类实例化, 认证和加密算法与上面设备配置相对应
         self.userData = UsmUserData(
@@ -39,6 +39,7 @@ class Mib(object):
         )
 
         # 配置目标主机
+        # TODO
         ip_port = ('119.131.148.169', 161)
         self.target = UdpTransportTarget(ip_port)
         # 实例化上下文对象
