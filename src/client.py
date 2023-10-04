@@ -1,15 +1,25 @@
+"""
+ac配置参考:
+    https://www.sohu.com/a/496535833_99906077
+    https://zhiliao.h3c.com/questions/dispcont/232042
+    https://juejin.cn/post/6988416254646157320
+"""
+
+
 # 导入高层 API
 from pysnmp.hlapi import *
 
 # 初始化引擎
 engine = SnmpEngine()
-# 选择 SNMP 协议，v1 和 v2c 只用团体字，使用 CommunityData 类实例化
 
+# 选择 SNMP 协议:
+
+# SNMP v1 和 SNMP v2c 采用团体名认证, 使用 CommunityData 类实例化
 # SNMPv1
 # communityData = CommunityData('public', mpModel=0)
 
 # SNMPv2c
-communityData = CommunityData('public', mpModel=1)
+communityData = CommunityData('zhoulixin', mpModel=1)
 
 # SNMPv3, 则需要用户凭证, 使用 UsmUserData 类实例化, 认证和加密算法与上面设备配置相对应
 userData = UsmUserData(
