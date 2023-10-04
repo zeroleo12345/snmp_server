@@ -106,7 +106,7 @@ class Mib(object):
                 for iface in varBinds:
                     log.info(iface)
         except StopIteration:
-            log.info('Get interface list done.')
+            pass
 
 
 
