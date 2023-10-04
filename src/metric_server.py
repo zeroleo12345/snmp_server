@@ -1,5 +1,15 @@
+"""
+ac配置参考:
+    https://www.sohu.com/a/496535833_99906077
+    https://zhiliao.h3c.com/questions/dispcont/232042
+    https://juejin.cn/post/6988416254646157320
+"""
+
 # 导入高层 API
-from pysnmp.hlapi import *
+from pysnmp.hlapi import SnmpEngine, CommunityData, UsmUserData, usmHMACMD5AuthProtocol, \
+    usmAesCfb128Protocol, UdpTransportTarget, ContextData, ObjectIdentity, ObjectType, \
+    getCmd, nextCmd
+from settings import log, COMMUNITY_NAME
 
 
 class Human(object):
