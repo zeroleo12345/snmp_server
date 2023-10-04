@@ -109,11 +109,14 @@ class Mib(object):
             pass
 
 
-
-if __name__ == "__main__":
+def main():
     mib = Mib(ip='119.131.148.169', port=21161)
     mib.get('sysName')
     log.info('============================')
     mib.get_all('ifDescr')
     log.info('============================')
     mib.get_all('ifOperStatus')
+
+
+if __name__ == "__main__":
+    main()
