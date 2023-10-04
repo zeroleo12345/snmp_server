@@ -14,7 +14,7 @@ SNMP_PORT = config('SNMP_PORT', default=162)
 COMMUNITY_NAME = config('COMMUNITY_NAME', default='zhoulixin')
 
 # Log
-LOG_LEVEL = config('LOG_LEVEL')
+LOG_LEVEL = config('LOG_LEVEL', default='INFO')
 # 初始化日志
 log.remove()    # workaround: https://github.com/Delgan/loguru/issues/208
 log_console_format = "{time:YYYY-MM-DD HH:mm:ss.SSS} | <level>{level: <8}</level> | <level>{message}</level>"
