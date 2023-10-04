@@ -6,7 +6,9 @@ ac配置参考:
 """
 
 # 导入高层 API
-from pysnmp.hlapi import *
+from pysnmp.hlapi import SnmpEngine, CommunityData, UsmUserData, usmHMACMD5AuthProtocol, \
+    usmAesCfb128Protocol, UdpTransportTarget, ContextData, ObjectIdentity, ObjectType, \
+    getCmd, nextCmd
 from settings import log, COMMUNITY_NAME
 
 
@@ -44,8 +46,9 @@ class Mib(object):
         self.target = UdpTransportTarget(ip_port)
         # 实例化上下文对象
         self.context = ContextData()
+        print(1111111111)
 
-    def getCmd(self, metric_name):
+    def get(self, metric_name):
         log.info(f'get metric: {metric_name}')
         # ObjectIdentity 类负责 MIB 对象的识别:
 
@@ -60,7 +63,8 @@ class Mib(object):
         obj = ObjectType(oid)
         # 使用 getCMD 方法进行查询，返回结果是一个迭代器, 需要使用 next() 来取值
         # 传递的参数均为为上面定义的变量, 以 v2c 为例(如果是 v3，communityData 替换为 userData)
-        g = getCmd(self.engine, self.communityData, self.target, context, obj)
+        from pprint import pprint; import pdb; pdb.set_trace()
+        g = getCmd(self.engine, self.communityData, self.target, self.context, obj)
 
         # 取值
         errorIndication, errorStatus, errorIndex, result = next(g)
@@ -69,7 +73,7 @@ class Mib(object):
         for i in result:
             log.info(i)
 
-    def nextCmd(self, metric_name):
+    def get_all(self, metric_name):
         """
         这个函数是查询接口列表, 和上面查询 sysName 的区别是使用了 nextCmd 来获取一个 MIB 子树的全部内容
         主要是 `lexicographicMode=False` 参数, 默认为 `True`, 会一直查询到 MIB 树结束.
@@ -85,7 +89,7 @@ class Mib(object):
         # 使用 ObjectType 类初始化查询对象:
         obj = ObjectType(oid)
         # 传递的参数均为为上面定义的变量, 以 v2c 为例(如果是 v3，communityData 替换为 userData)
-        g = nextCmd(self.engine, self.communityData, self.target, context, obj, lexicographicMode=False)
+        g = nextCmd(self.engine, self.communityData, self.target, self.context, obj, lexicographicMode=False)
         # 手动迭代并输出内容，并进行迭代器终止的判断
         try:
             while True:
@@ -105,6 +109,7 @@ class Mib(object):
 
 if __name__ == "__main__":
     # get sysName
-    getCmd(metric_name='sysName')
+    mib = Mib()
+    mib.get(metric_name='sysName')
     log.info('============================')
-    nextCmd(metric_name='ifOperStatus')
+    mib.get_all(metric_name='ifOperStatus')
