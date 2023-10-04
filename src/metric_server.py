@@ -7,6 +7,7 @@ ac配置参考:
 
 # 导入高层 API
 from pysnmp.hlapi import *
+from settings import log
 
 
 class Mib(object):
@@ -44,7 +45,7 @@ class Mib(object):
         self.context = ContextData()
 
     def getCmd(self, metric_name):
-        print(f'get metric: {metric_name}')
+        log.info(f'get metric: {metric_name}')
         # ObjectIdentity 类负责 MIB 对象的识别:
 
         # 方法1: 指定要查询的 OID 对象或名称
@@ -65,14 +66,14 @@ class Mib(object):
 
         # 打印输出
         for i in result:
-            print(i)
+            log.info(i)
 
     def nextCmd(self, metric_name):
         """
         这个函数是查询接口列表, 和上面查询 sysName 的区别是使用了 nextCmd 来获取一个 MIB 子树的全部内容
         主要是 `lexicographicMode=False` 参数, 默认为 `True`, 会一直查询到 MIB 树结束.
         """
-        print(f'get metric: {metric_name}')
+        log.info(f'get metric: {metric_name}')
         # 方法1: 指定要查询的 OID 对象或名称
         _id = self.oid_map[metric_name]
         oid = ObjectIdentity(id)
@@ -91,18 +92,18 @@ class Mib(object):
                 #  (Pdb) errorStatus.namedValues.getName('noError')
                 #  (Pdb) errorStatus.namedValues.getName(0)
                 if str(errorStatus) != 'noError':
-                    print(errorIndication)
-                    print(errorStatus)
-                    print(errorIndex)
+                    log.error(errorIndication)
+                    log.error(errorStatus)
+                    log.error(errorIndex)
                     continue
                 for iface in varBinds:
-                    print(iface)
+                    log.info(iface)
         except StopIteration:
-            print('Get interface list done.')
+            log.info('Get interface list done.')
 
 
 if __name__ == "__main__":
     # get sysName
     getCmd(metric_name='sysName')
-    print('============================')
+    log.info('============================')
     nextCmd(metric_name='ifOperStatus')
