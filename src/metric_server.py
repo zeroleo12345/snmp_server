@@ -50,7 +50,7 @@ class Mib(object):
 
         # 方法1: 指定要查询的 OID 对象或名称
         _id = self.oid_map[metric_name]
-        log.info(f'getting metric: {metric_name}, id: {_id}')
+        log.info(f'getting metric: "{metric_name}", id: {_id}')
         oid = ObjectIdentity(_id)
         
         # 方法2: 通过oid名字查询
@@ -82,7 +82,7 @@ class Mib(object):
         """
         # 方法1: 指定要查询的 OID 对象或名称
         _id = self.oid_map[metric_name]
-        log.info(f'getting metric: {metric_name}, id: {_id}')
+        log.info(f'getting metric: "{metric_name}", id: {_id}')
         oid = ObjectIdentity(_id)
 
         # 方法2: 通过oid名字查询
