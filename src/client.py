@@ -21,7 +21,7 @@ userData = UsmUserData(
 )
 
 # 配置目标主机
-ip_port = ('192.168.11.11', 161)
+ip_port = ('119.131.148.169', 161)
 target = UdpTransportTarget(ip_port)
 
 # 实例化上下文对象
