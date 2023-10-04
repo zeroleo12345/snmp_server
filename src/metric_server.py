@@ -27,7 +27,7 @@ class Mib(object):
         # communityData = CommunityData('public', mpModel=0)
 
         # SNMPv2c
-        self.communityData = CommunityData('zhoulixin', mpModel=1)
+        self.communityData = CommunityData(COMMUNITY_NAME, mpModel=1)
 
         # SNMPv3, 则需要用户凭证, 使用 UsmUserData 类实例化, 认证和加密算法与上面设备配置相对应
         self.userData = UsmUserData(
@@ -66,7 +66,7 @@ class Mib(object):
 
         # 打印输出
         for i in result:
-            print(i)
+            log.info(i)
 
 
     def get_all(self, metric_name):
@@ -93,14 +93,14 @@ class Mib(object):
                 #  (Pdb) errorStatus.namedValues.getName('noError')
                 #  (Pdb) errorStatus.namedValues.getName(0)
                 if str(errorStatus) != 'noError':
-                    print(errorIndication)
-                    print(errorStatus)
-                    print(errorIndex)
+                    log.error(errorIndication)
+                    log.error(errorStatus)
+                    log.error(errorIndex)
                     continue
                 for iface in varBinds:
-                    print(iface)
+                    log.info(iface)
         except StopIteration:
-            print('Get interface list done.')
+            log.info('Get interface list done.')
 
 
 
