@@ -12,7 +12,7 @@ from pysnmp.hlapi import SnmpEngine, CommunityData, UsmUserData, usmHMACMD5AuthP
 from settings import log, COMMUNITY_NAME
 
 
-class Human(object):
+class Mib(object):
     def __init__(self):
         # 初始化引擎
         self.engine = SnmpEngine()
@@ -39,7 +39,7 @@ class Human(object):
         # 实例化上下文对象
         self.context = ContextData()
         
-    def getSysName(self):
+    def get(self):
         # ObjectIdentity 类负责 MIB 对象的识别:
 
         # 方法1: 指定要查询的 OID 对象或名称
@@ -63,7 +63,7 @@ class Human(object):
             print(i)
 
 
-    def getIfaceList(self,):
+    def get_all(self,):
         """
         这个函数是查询接口列表, 和上面查询 sysName 的区别是使用了 nextCmd 来获取一个 MIB 子树的全部内容
         主要是 `lexicographicMode=False` 参数, 默认为 `True`, 会一直查询到 MIB 树结束.
@@ -98,7 +98,7 @@ class Human(object):
 
 
 if __name__ == "__main__":
-    mib = Human()
-    mib.getSysName()
+    mib = Mib()
+    mib.get()
     print('============================')
-    mib.getIfaceList()
+    mib.get_all()
