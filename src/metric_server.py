@@ -69,14 +69,14 @@ class Mib(object):
             log.info(i)
 
 
-    def get_all(self, name):
+    def get_all(self, metric_name):
         """
         这个函数是查询接口列表, 和上面查询 sysName 的区别是使用了 nextCmd 来获取一个 MIB 子树的全部内容
         主要是 `lexicographicMode=False` 参数, 默认为 `True`, 会一直查询到 MIB 树结束.
         """
         # 方法1: 指定要查询的 OID 对象或名称
-        _id = self.oid_map[name]
-        log.info(f'get metric: {name}, id: {_id}')
+        _id = self.oid_map[metric_name]
+        log.info(f'get metric: {metric_name}, id: {_id}')
         oid = ObjectIdentity(_id)
 
         # 方法2: 通过oid名字查询
