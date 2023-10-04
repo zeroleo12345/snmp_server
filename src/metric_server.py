@@ -19,7 +19,7 @@ class Mib(object):
         'ifOperStatus': '1.3.6.1.2.1.2.2.1.8',
     }
 
-    def __init__(self):
+    def __init__(self, ip, port=161):
         # 初始化引擎
         self.engine = SnmpEngine()
         # 选择 SNMP 协议，v1 和 v2c 只用团体字，使用 CommunityData 类实例化
@@ -40,7 +40,7 @@ class Mib(object):
         )
 
         # 配置目标主机
-        ip_port = ('119.131.148.169', 161)
+        ip_port = (ip, port)
         self.target = UdpTransportTarget(ip_port)
         # 实例化上下文对象
         self.context = ContextData()
@@ -111,7 +111,7 @@ class Mib(object):
 
 
 if __name__ == "__main__":
-    mib = Mib()
+    mib = Mib(ip='119.131.148.169')
     mib.get('sysName')
     log.info('============================')
     mib.get_all('ifDescr')
