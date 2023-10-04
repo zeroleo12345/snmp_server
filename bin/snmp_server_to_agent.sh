@@ -9,4 +9,4 @@ export PYTHONPATH=$project_root/src:$PYTHONPATH
 export LOG_HEADER="snmp"
 
 pip freeze | sort
-exec python3 $project_root/src/server.py
+exec python3 $project_root/src/metric_server.py
