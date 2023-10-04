@@ -1,9 +1,9 @@
 ## NMS
 实现 Network Management Station (NMS)
 
-监听UDP 162端口接收trap消息
+1. 监听UDP 162端口接收trap消息
 
-向远端UDP 161端口发送snmp消息
+2. 向远端UDP 161端口发送snmp消息
 
 
 ## Reference
