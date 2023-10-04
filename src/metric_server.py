@@ -15,6 +15,7 @@ from settings import log, COMMUNITY_NAME
 class Mib(object):
     oid_map = {
         'sysName': '1.3.6.1.2.1.1.5.0',
+        'ifDescr': '1.3.6.1.2.1.2.2.1.2',
         'ifOperStatus': '1.3.6.1.2.1.2.2.1.8',
     }
 
@@ -49,7 +50,7 @@ class Mib(object):
 
         # 方法1: 指定要查询的 OID 对象或名称
         _id = self.oid_map[metric_name]
-        log.info(f'get metric: {metric_name}, id: {_id}')
+        log.info(f'getting metric: {metric_name}, id: {_id}')
         oid = ObjectIdentity(_id)
         
         # 方法2: 通过oid名字查询
@@ -63,6 +64,11 @@ class Mib(object):
 
         # 取值
         errorIndication, errorStatus, errorIndex, result = next(g)
+        if int(errorStatus) != 0:
+            log.error(errorIndication)
+            log.error(errorStatus)
+            log.error(errorIndex)
+            return
 
         # 打印输出
         for i in result:
@@ -76,7 +82,7 @@ class Mib(object):
         """
         # 方法1: 指定要查询的 OID 对象或名称
         _id = self.oid_map[metric_name]
-        log.info(f'get metric: {metric_name}, id: {_id}')
+        log.info(f'getting metric: {metric_name}, id: {_id}')
         oid = ObjectIdentity(_id)
 
         # 方法2: 通过oid名字查询
@@ -92,11 +98,11 @@ class Mib(object):
                 errorIndication, errorStatus, errorIndex, varBinds = next(g)
                 #  (Pdb) errorStatus.namedValues.getName('noError')
                 #  (Pdb) errorStatus.namedValues.getName(0)
-                if str(errorStatus) != 'noError':
+                if int(errorStatus) != 0:
                     log.error(errorIndication)
                     log.error(errorStatus)
                     log.error(errorIndex)
-                    continue
+                    return
                 for iface in varBinds:
                     log.info(iface)
         except StopIteration:
@@ -108,4 +114,5 @@ if __name__ == "__main__":
     mib = Mib()
     mib.get('sysName')
     log.info('============================')
+    #  mib.get_all('ifDescr')
     mib.get_all('ifOperStatus')
