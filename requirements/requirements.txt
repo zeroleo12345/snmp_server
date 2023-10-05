@@ -1,5 +1,9 @@
+pyasn1==0.4.8
 pysnmp==4.4.12
 loguru==0.5.3
 dynaconf==3.1.2
 sentry_sdk==0.5.5
 requests==2.20.0
+gevent==1.4.0
+greenlet==0.4.15
+redis==3.3.11

@@ -38,3 +38,10 @@ services:
     entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/snmp_server_to_agent.sh; fi'
     restart: "${RESTART_POLICY}"
     logging: *default_logging
+    networks:
+      - pppoe_system
+
+
+networks:
+  pppoe_system:
+    name: pppoe_system_network_name

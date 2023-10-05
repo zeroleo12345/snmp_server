@@ -5,10 +5,13 @@ ac配置参考:
     https://juejin.cn/post/6988416254646157320
 """
 
-# 导入高层 API
+import json
+# 第三方库
 from pysnmp.hlapi import SnmpEngine, CommunityData, UsmUserData, usmHMACMD5AuthProtocol, \
     usmAesCfb128Protocol, UdpTransportTarget, ContextData, ObjectIdentity, ObjectType, \
     getCmd, nextCmd
+# 项目库
+from utils.redispool import get_redis
 from settings import log, COMMUNITY_NAME
 
 
@@ -109,14 +112,31 @@ class Mib(object):
             pass
 
 
+def get_target_ips() -> list:
+    ips = []
+    redis = get_redis()
+    auth_key = 'hash:nas_name_to_nas_ip:auth'
+    for nas in redis.hgetall(auth_key).values():
+        ips.append(json.loads(nas)['ip'])
+    return ips
+
+
 def main():
-    mib = Mib(ip='119.131.148.169', port=21161)
-    mib.get('sysName')
-    log.info('============================')
-    mib.get_all('ifDescr')
-    log.info('============================')
-    mib.get_all('ifOperStatus')
+    for ip in get_target_ips():
+        mib = Mib(ip=ip, port=161)
+        #  mib = Mib(ip=ip, port=21161)
+        mib.get('sysName')
+        log.info('============================')
+        mib.get_all('ifDescr')
+        log.info('============================')
+        mib.get_all('ifOperStatus')
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        pass
+    except Exception as e:
+        log.critical(traceback.format_exc())
+        sentry_sdk.capture_exception(e)
