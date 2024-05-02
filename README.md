@@ -17,7 +17,11 @@ https://mibs.thola.io/pysnmp/
 ## Client Simulator in Docker
 - Install
 ```
+# CentOS
 yum install net-snmp-utils
+
+# Ubuntu
+sudo apt-get install snmp
 ```
 
 - Send
