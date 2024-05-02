@@ -39,7 +39,7 @@ class Mib(object):
         )
 
         # 配置目标主机
-        ip_port = ('119.131.148.169', 161)
+        ip_port = ('10.13.0.11', 161)
         self.target = UdpTransportTarget(ip_port)
         # 实例化上下文对象
         self.context = ContextData()
