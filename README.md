@@ -14,7 +14,7 @@ https://pysnmp.readthedocs.io/en/latest/examples/v1arch/asyncore/manager/ntfrcv/
 https://mibs.thola.io/pysnmp/
 
 
-## Client Simulator in Docker
+## Trap Sender Simulator
 - Install
 ```
 # CentOS
