@@ -11,6 +11,7 @@ x-logging:
 # Simple Network Management Protocol 消息通过UDP端口161接收，只有Trap信息用UDP端口162
 services:
   alert:
+    platform: linux/amd64
     container_name: snmp_trap_alert_server
     build:
        context: .
@@ -28,6 +29,7 @@ services:
     logging: *default_logging
 
   metric:
+    platform: linux/amd64
     container_name: snmp_server_to_agent
     build:
        context: .
@@ -38,3 +40,10 @@ services:
     entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/snmp_server_to_agent.sh; fi'
     restart: "${RESTART_POLICY}"
     logging: *default_logging
+    networks:
+      - pppoe_system
+
+
+networks:
+  pppoe_system:
+    name: pppoe_system_network_name

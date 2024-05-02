@@ -5,20 +5,24 @@ ac配置参考:
     https://juejin.cn/post/6988416254646157320
 """
 
-# 导入高层 API
+import json
+# 第三方库
 from pysnmp.hlapi import SnmpEngine, CommunityData, UsmUserData, usmHMACMD5AuthProtocol, \
     usmAesCfb128Protocol, UdpTransportTarget, ContextData, ObjectIdentity, ObjectType, \
     getCmd, nextCmd
+# 项目库
+from utils.redispool import get_redis
 from settings import log, COMMUNITY_NAME
 
 
 class Mib(object):
     oid_map = {
         'sysName': '1.3.6.1.2.1.1.5.0',
+        'ifDescr': '1.3.6.1.2.1.2.2.1.2', # 1: up;  2: down;
         'ifOperStatus': '1.3.6.1.2.1.2.2.1.8',
     }
 
-    def __init__(self):
+    def __init__(self, ip, port=161):
         # 初始化引擎
         self.engine = SnmpEngine()
         # 选择 SNMP 协议，v1 和 v2c 只用团体字，使用 CommunityData 类实例化
@@ -39,7 +43,8 @@ class Mib(object):
         )
 
         # 配置目标主机
-        ip_port = ('10.13.0.11', 161)
+        # ip_port = ('10.13.0.11', 161)
+        ip_port = (ip, port)
         self.target = UdpTransportTarget(ip_port)
         # 实例化上下文对象
         self.context = ContextData()
@@ -49,7 +54,7 @@ class Mib(object):
 
         # 方法1: 指定要查询的 OID 对象或名称
         _id = self.oid_map[metric_name]
-        log.info(f'get metric: {metric_name}, id: {_id}')
+        log.info(f'getting metric: "{metric_name}", oid: {_id}')
         oid = ObjectIdentity(_id)
         
         # 方法2: 通过oid名字查询
@@ -63,6 +68,11 @@ class Mib(object):
 
         # 取值
         errorIndication, errorStatus, errorIndex, result = next(g)
+        if int(errorStatus) != 0:
+            log.error(errorIndication)
+            log.error(errorStatus)
+            log.error(errorIndex)
+            return
 
         # 打印输出
         for i in result:
@@ -76,7 +86,7 @@ class Mib(object):
         """
         # 方法1: 指定要查询的 OID 对象或名称
         _id = self.oid_map[metric_name]
-        log.info(f'get metric: {metric_name}, id: {_id}')
+        log.info(f'getting metric: "{metric_name}", oid: {_id}')
         oid = ObjectIdentity(_id)
 
         # 方法2: 通过oid名字查询
@@ -92,20 +102,42 @@ class Mib(object):
                 errorIndication, errorStatus, errorIndex, varBinds = next(g)
                 #  (Pdb) errorStatus.namedValues.getName('noError')
                 #  (Pdb) errorStatus.namedValues.getName(0)
-                if str(errorStatus) != 'noError':
+                if int(errorStatus) != 0:
                     log.error(errorIndication)
                     log.error(errorStatus)
                     log.error(errorIndex)
-                    continue
+                    return
                 for iface in varBinds:
                     log.info(iface)
         except StopIteration:
-            log.info('Get interface list done.')
+            pass
 
+
+def get_target_ips() -> list:
+    ips = []
+    redis = get_redis()
+    auth_key = 'hash:nas_name_to_nas_ip:auth'
+    for nas in redis.hgetall(auth_key).values():
+        ips.append(json.loads(nas)['ip'])
+    return ips
+
+
+def main():
+    for ip in get_target_ips():
+        mib = Mib(ip=ip, port=161)
+        #  mib = Mib(ip=ip, port=21161)
+        mib.get('sysName')
+        log.info('============================')
+        mib.get_all('ifDescr')
+        log.info('============================')
+        mib.get_all('ifOperStatus')
 
 
 if __name__ == "__main__":
-    mib = Mib()
-    mib.get(metric_name='sysName')
-    log.info('============================')
-    mib.get_all(metric_name='ifOperStatus')
+    try:
+        main()
+    except KeyboardInterrupt:
+        pass
+    except Exception as e:
+        log.critical(traceback.format_exc())
+        sentry_sdk.capture_exception(e)
