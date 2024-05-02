@@ -11,7 +11,8 @@ x-logging:
 # Simple Network Management Protocol 消息通过UDP端口161接收，只有Trap信息用UDP端口162
 services:
   alert:
-    container_name: snmp_trap_alert
+    platform: linux/amd64
+    container_name: snmp_trap_alert_server
     build:
        context: .
        dockerfile: ./Dockerfile
@@ -23,24 +24,26 @@ services:
     volumes:
       - .:/app
       - ./mibs/:/root/.pysnmp/mibs/
-    entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/snmp.sh; fi'
+    entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/snmp_trap_alert_server.sh; fi'
     restart: "${RESTART_POLICY}"
     logging: *default_logging
 
-  # 因为pysnmp没有161报文处理函数!
-  server:
-    container_name: snmp_server
+  metric:
+    platform: linux/amd64
+    container_name: snmp_server_to_agent
     build:
        context: .
        dockerfile: ./Dockerfile
     image: snmp_collector:2.0.0
-    ports:
-      - "161:161/udp"
-    environment:
-      SNMP_PORT: 161
     volumes:
       - .:/app
-      - ./mibs/:/root/.pysnmp/mibs/
-    entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/snmp.sh; fi'
+    entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/snmp_server_to_agent.sh; fi'
     restart: "${RESTART_POLICY}"
     logging: *default_logging
+    networks:
+      - pppoe_system
+
+
+networks:
+  pppoe_system:
+    name: pppoe_system_network_name

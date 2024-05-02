@@ -1,12 +1,11 @@
 # https://hub.docker.com/_/python/, 镜像名说明: 前缀python可选自url; 后缀:3.6-alpine为网页上的tag, 如不指定后缀, 则为:latest
-FROM python:3.7.3-slim-stretch
+FROM python:3.7.17-slim-bookworm
 
 # 一. 安装 linux package. (使用: 阿里云 alpine 镜像)
-ADD requirements/sources.list.tencent /app/requirements/sources.list.tencent
+ADD requirements/debian.sources.tencent /etc/apt/sources.list
+RUN rm -rf /etc/apt/sources.list.d/* && apt-get update
 
-RUN ln -snf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo Asia/Shanghai > /etc/timezone \
-    && cp /app/requirements/sources.list.tencent  /etc/apt/sources.list \
-    && apt-get update
+RUN ln -snf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo Asia/Shanghai > /etc/timezone
 
 # 二. 安装 python package.
 ADD requirements/requirements.txt /app/requirements/requirements.txt
