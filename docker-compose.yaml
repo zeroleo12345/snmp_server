@@ -28,7 +28,7 @@ services:
     restart: "${RESTART_POLICY}"
     logging: *default_logging
 
-  metric:
+  scraper:
     platform: linux/amd64
     container_name: snmp_server_to_agent
     build:
@@ -37,7 +37,7 @@ services:
     image: snmp_collector:2.0.0
     volumes:
       - .:/app
-    entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/snmp_server_to_agent.sh; fi'
+    entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/scrape_from_agent.sh; fi'
     restart: "${RESTART_POLICY}"
     logging: *default_logging
     networks:
