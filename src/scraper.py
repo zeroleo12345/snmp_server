@@ -4,7 +4,7 @@ ac配置参考:
     https://juejin.cn/post/6988416254646157320
 
     H3C MSR3600 MIB库下载链接: https://zhiliao.h3c.com/questions/dispcont/232042
-    IF-MIB: https://www.h3c.com/cn/d_202207/1649577_30005_0.htm
+    IF-MIB: https://www.h3c.com/cn/Service/Document_Software/Document_Center/Routers/Catalog/MSR/MSR_3600/
 """
 
 import json
@@ -23,7 +23,7 @@ class Mib(object):
         'sysName': ['1.3.6.1.2.1.1.5.0', {}],
         'ifDescr': ['1.3.6.1.2.1.2.2.1.2', {}], # interface名称
         'ifOperStatus': ['1.3.6.1.2.1.2.2.1.8', {'1': 'up', '2': 'down'}], # interace状态
-        'ifSpeed': ['1.3.6.1.2.1.2.2.1.5', {}], # 百兆, 千兆
+        'ifHighSpeed': ['1.3.6.1.2.1.31.1.1.1.15', {}], # 百兆-100, 千兆-1000
         'ifInOctets': ['1.3.6.1.2.1.2.2.1.10', {}], #
     }
 
@@ -149,7 +149,7 @@ def main():
             log.info('============================')
             mib.get_all('ifOperStatus')
             log.info('============================')
-            mib.get_all('ifInOctets')
+            mib.get_all('ifHighSpeed')
         except Exception as e:
             log.critical(traceback.format_exc())
             sentry_sdk.capture_exception(e)
