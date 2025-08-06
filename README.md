@@ -34,3 +34,9 @@ snmptrap -v 2c -c public 127.0.0.1 "aaa" 1.3.6.1.4.1.2345 SNMPv2-MIB::sysLocatio
 ```
 hset hash:nas_name_to_nas_ip:auth 10.13.0.11 161
 ```
+
+
+## IPv6 run outside Docker
+```
+python scraper.py
+```

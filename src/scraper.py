@@ -8,7 +8,8 @@ ac配置参考:
 import json
 # 第三方库
 from pysnmp.hlapi import SnmpEngine, CommunityData, UsmUserData, usmHMACMD5AuthProtocol, \
-    usmAesCfb128Protocol, UdpTransportTarget, ContextData, ObjectIdentity, ObjectType, \
+    UdpTransportTarget, Udp6TransportTarget, \
+    usmAesCfb128Protocol, ContextData, ObjectIdentity, ObjectType, \
     getCmd, nextCmd
 # 项目库
 from utils.redispool import get_redis
@@ -23,6 +24,7 @@ class Mib(object):
     }
 
     def __init__(self, ip, port=161):
+        log.info(f'\n\n###################')
         # 初始化引擎
         self.engine = SnmpEngine()
         # 选择 SNMP 协议，v1 和 v2c 只用团体字，使用 CommunityData 类实例化
@@ -44,8 +46,15 @@ class Mib(object):
 
         # 配置目标主机
         # ip_port = ('10.13.0.11', 161)
+        timeout = 2
+        retries = 0
         ip_port = (ip, port)
-        self.target = UdpTransportTarget(ip_port)
+        if ":" in ip:
+            log.info(f'IPv6: {ip}')
+            self.target = Udp6TransportTarget(ip_port, timeout=timeout, retries=retries)
+        else:
+            log.info(f'IPv4: {ip}')
+            self.target = UdpTransportTarget(ip_port, timeout=timeout, retries=retries)
         # 实例化上下文对象
         self.context = ContextData()
         
@@ -116,7 +125,7 @@ class Mib(object):
 def get_target_ips() -> list:
     ips = []
     redis = get_redis()
-    auth_key = 'hash:nas_name_to_nas_ip:auth'
+    auth_key = "hash:probe_nas_name_to_nas_ip:auth"
     for nas in redis.hgetall(auth_key).values():
         ips.append(json.loads(nas)['ip'])
     return ips
@@ -124,13 +133,18 @@ def get_target_ips() -> list:
 
 def main():
     for ip in get_target_ips():
-        mib = Mib(ip=ip, port=161)
-        #  mib = Mib(ip=ip, port=21161)
-        mib.get('sysName')
-        log.info('============================')
-        mib.get_all('ifDescr')
-        log.info('============================')
-        mib.get_all('ifOperStatus')
+        try:
+            mib = Mib(ip=ip, port=161)
+            #  mib = Mib(ip=ip, port=21161)
+            mib.get('sysName')
+            log.info('============================')
+            mib.get_all('ifDescr')
+            log.info('============================')
+            mib.get_all('ifOperStatus')
+        except Exception as e:
+            log.critical(traceback.format_exc())
+            sentry_sdk.capture_exception(e)
+
 
 
 if __name__ == "__main__":
@@ -138,6 +152,3 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt:
         pass
-    except Exception as e:
-        log.critical(traceback.format_exc())
-        sentry_sdk.capture_exception(e)
