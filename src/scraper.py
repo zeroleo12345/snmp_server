@@ -1,9 +1,9 @@
 """
 ac配置参考:
     https://www.sohu.com/a/496535833_99906077
-    https://zhiliao.h3c.com/questions/dispcont/232042
     https://juejin.cn/post/6988416254646157320
 
+    H3C MSR3600 MIB库下载链接: https://zhiliao.h3c.com/questions/dispcont/232042
     IF-MIB: https://www.h3c.com/cn/d_202207/1649577_30005_0.htm
 """
 
@@ -21,9 +21,10 @@ from settings import log, COMMUNITY_NAME
 class Mib(object):
     oid_map = {
         'sysName': ['1.3.6.1.2.1.1.5.0', {}],
-        'ifDescr': ['1.3.6.1.2.1.2.2.1.2', {}],
-        'ifOperStatus': ['1.3.6.1.2.1.2.2.1.8', {'1': 'up', '2': 'down'}],
-        'ifSpeed': ['1.3.6.1.2.1.2.2.1.5', {}],
+        'ifDescr': ['1.3.6.1.2.1.2.2.1.2', {}], # interface名称
+        'ifOperStatus': ['1.3.6.1.2.1.2.2.1.8', {'1': 'up', '2': 'down'}], # interace状态
+        'ifSpeed': ['1.3.6.1.2.1.2.2.1.5', {}], # 百兆, 千兆
+        'ifInOctets': ['1.3.6.1.2.1.2.2.1.10', {}], #
     }
 
     def __init__(self, ip, port=161):
@@ -148,7 +149,7 @@ def main():
             log.info('============================')
             mib.get_all('ifOperStatus')
             log.info('============================')
-            mib.get_all('ifSpeed')
+            mib.get_all('ifInOctets')
         except Exception as e:
             log.critical(traceback.format_exc())
             sentry_sdk.capture_exception(e)
