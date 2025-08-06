@@ -24,7 +24,9 @@ class Mib(object):
     }
 
     def __init__(self, ip, port=161):
-        log.info(f'\n\n###################')
+        log.info(f'')
+        log.info(f'')
+        log.info(f'############################################')
         # 初始化引擎
         self.engine = SnmpEngine()
         # 选择 SNMP 协议，v1 和 v2c 只用团体字，使用 CommunityData 类实例化
@@ -46,7 +48,7 @@ class Mib(object):
 
         # 配置目标主机
         # ip_port = ('10.13.0.11', 161)
-        timeout = 2
+        timeout = 1.0
         retries = 0
         ip_port = (ip, port)
         if ":" in ip:
