@@ -18,9 +18,9 @@ from settings import log, COMMUNITY_NAME
 
 class Mib(object):
     oid_map = {
-        'sysName': '1.3.6.1.2.1.1.5.0',
-        'ifDescr': '1.3.6.1.2.1.2.2.1.2', # 1: up;  2: down;
-        'ifOperStatus': '1.3.6.1.2.1.2.2.1.8',
+        'sysName': ['1.3.6.1.2.1.1.5.0', {}],
+        'ifDescr': ['1.3.6.1.2.1.2.2.1.2', {'1': 'up', '2': 'down'}],
+        'ifOperStatus': ['1.3.6.1.2.1.2.2.1.8', {}],
     }
 
     def __init__(self, ip, port=161):
@@ -64,7 +64,7 @@ class Mib(object):
         # ObjectIdentity 类负责 MIB 对象的识别:
 
         # 方法1: 指定要查询的 OID 对象或名称
-        _id = self.oid_map[metric_name]
+        _id = self.oid_map[metric_name][0]
         log.info(f'getting metric: "{metric_name}", oid: {_id}')
         oid = ObjectIdentity(_id)
         
@@ -87,7 +87,7 @@ class Mib(object):
 
         # 打印输出
         for i in result:
-            log.info(i)
+            log.info(f'111: {i}')
 
 
     def get_all(self, metric_name):
@@ -96,7 +96,7 @@ class Mib(object):
         主要是 `lexicographicMode=False` 参数, 默认为 `True`, 会一直查询到 MIB 树结束.
         """
         # 方法1: 指定要查询的 OID 对象或名称
-        _id = self.oid_map[metric_name]
+        _id = self.oid_map[metric_name][0]
         log.info(f'getting metric: "{metric_name}", oid: {_id}')
         oid = ObjectIdentity(_id)
 
@@ -119,7 +119,7 @@ class Mib(object):
                     log.error(errorIndex)
                     return
                 for iface in varBinds:
-                    log.info(iface)
+                    log.info(f'222: {iface}')
         except StopIteration:
             pass
 
