@@ -3,6 +3,8 @@ ac配置参考:
     https://www.sohu.com/a/496535833_99906077
     https://zhiliao.h3c.com/questions/dispcont/232042
     https://juejin.cn/post/6988416254646157320
+
+    IF-MIB: https://www.h3c.com/cn/d_202207/1649577_30005_0.htm
 """
 
 import json
@@ -21,6 +23,7 @@ class Mib(object):
         'sysName': ['1.3.6.1.2.1.1.5.0', {}],
         'ifDescr': ['1.3.6.1.2.1.2.2.1.2', {}],
         'ifOperStatus': ['1.3.6.1.2.1.2.2.1.8', {'1': 'up', '2': 'down'}],
+        'ifSpeed': ['1.3.6.1.2.1.2.2.1.5', {}],
     }
 
     def __init__(self, ip, port=161):
@@ -144,6 +147,8 @@ def main():
             mib.get_all('ifDescr')
             log.info('============================')
             mib.get_all('ifOperStatus')
+            log.info('============================')
+            mib.get_all('ifSpeed')
         except Exception as e:
             log.critical(traceback.format_exc())
             sentry_sdk.capture_exception(e)
