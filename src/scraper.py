@@ -139,7 +139,6 @@ def main():
     for ip in get_target_ips():
         try:
             mib = Mib(ip=ip, port=161)
-            #  mib = Mib(ip=ip, port=21161)
             mib.get('sysName')
             log.info('============================')
             mib.get_all('ifDescr')
