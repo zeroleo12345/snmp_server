@@ -19,8 +19,8 @@ from settings import log, COMMUNITY_NAME
 class Mib(object):
     oid_map = {
         'sysName': ['1.3.6.1.2.1.1.5.0', {}],
-        'ifDescr': ['1.3.6.1.2.1.2.2.1.2', {'1': 'up', '2': 'down'}],
-        'ifOperStatus': ['1.3.6.1.2.1.2.2.1.8', {}],
+        'ifDescr': ['1.3.6.1.2.1.2.2.1.2', {}],
+        'ifOperStatus': ['1.3.6.1.2.1.2.2.1.8', {'1': 'up', '2': 'down'}],
     }
 
     def __init__(self, ip, port=161):
@@ -119,7 +119,9 @@ class Mib(object):
                     log.error(errorIndex)
                     return
                 for iface in varBinds:
-                    log.info(f'222: {iface}')
+                    value = str(iface._ObjectType__args[1])
+                    human_read_value = self.oid_map[metric_name][1].get(value, '')
+                    log.info(f'222: {iface} ({human_read_value})')
         except StopIteration:
             pass
 
