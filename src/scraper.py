@@ -25,8 +25,8 @@ class Mib(object):
         'ifOperStatus': ['1.3.6.1.2.1.2.2.1.8', {'1': 'up', '2': 'down'}], # interace状态
         'ifHighSpeed': ['1.3.6.1.2.1.31.1.1.1.15', {}], # 百兆-100, 千兆-1000
         'ifInOctets': ['1.3.6.1.2.1.2.2.1.10', {}], #
-        'hh3cIfMonInputUsageStatistics': ['1.3.6.1.4.1.25506.2.40.5.1.1.1.1', {}], # 入方向带宽利用率统计
-        'hh3cIfMonOutputUsageStatistics': ['1.3.6.1.4.1.25506.2.40.5.1.1.1.2', {}], # 出方向带宽利用率统计
+        'ifHCInOctets': ['1.3.6.1.2.1.31.1.1.1.6', {}], # 取端口入方向字节数
+        'ifHCOutOctets': ['1.3.6.1.2.1.31.1.1.1.10', {}], # 取端口出方向字节数
     }
 
     def __init__(self, ip, port=161):
@@ -151,7 +151,9 @@ def main():
             log.info('============================')
             mib.get_all('ifOperStatus')
             log.info('============================')
-            mib.get_all('hh3cIfMonOutputUsageStatistics')
+            mib.get_all('ifHCInOctets')
+            log.info('============================')
+            mib.get_all('ifHCOutOctets')
         except Exception as e:
             log.critical(traceback.format_exc())
             sentry_sdk.capture_exception(e)
