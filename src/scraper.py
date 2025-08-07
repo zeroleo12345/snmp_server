@@ -27,6 +27,8 @@ class Mib(object):
         'ifInOctets': ['1.3.6.1.2.1.2.2.1.10', {}], #
         'ifHCInOctets': ['1.3.6.1.2.1.31.1.1.1.6', {}], # 取端口入方向字节数
         'ifHCOutOctets': ['1.3.6.1.2.1.31.1.1.1.10', {}], # 取端口出方向字节数
+        'hh3cEntityExtCpuUsage': ['1.3.6.1.4.1.25506.2.6.1.1.1.1.6', {}], # 单板CPU利用率
+        'hh3cEntityExtMemUsage': ['1.3.6.1.4.1.25506.2.6.1.1.1.1.8', {}], # 单板内存利用率
     }
 
     def __init__(self, ip, port=161):
@@ -154,6 +156,14 @@ def main():
             mib.get_all('ifHCInOctets')
             log.info('============================')
             mib.get_all('ifHCOutOctets')
+            log.info('============================')
+            mib.get_all('hh3cEntityExtCpuUsage')
+            log.info('============================')
+            mib.get_all('hh3cEntityExtMemUsage')
+            log.info('============================')
+            mib.get_all('hh3cLswSysCpuRatio')
+            log.info('============================')
+            mib.get_all('hh3cLswSysMemoryRatio')
         except Exception as e:
             log.critical(traceback.format_exc())
             sentry_sdk.capture_exception(e)
