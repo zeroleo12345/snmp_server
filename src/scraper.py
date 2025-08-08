@@ -128,7 +128,7 @@ class Mib(object):
                     return
                 for iface in varBinds:
                     value = str(iface._ObjectType__args[1])
-                    human_read_value = self.oid_map[metric_name][1].get(value, '')
+                    human_read_value = self.oid_map[metric_name][1].get(value, value)
                     log.info(f'222: {iface} ({human_read_value})')
         except StopIteration:
             pass
