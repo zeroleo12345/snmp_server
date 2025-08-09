@@ -133,9 +133,8 @@ class Mib(object):
             pass
 
     def get_or_walk(self, metric_name):
-        node_oid = self.oid_map[metric_name]['node_oid']
-        child_oid = self.oid_map[metric_name].get('child_oid', '')
-        log.info(f'getting metric: "{metric_name}", node_oid: {node_oid}')
+        child_oid = self.oid_map.get(metric_name, {}).get('child_oid', '')
+        log.info(f'getting metric: "{metric_name}"')
 
         if child_oid:
             self.get_child(metric_name, child_oid)
