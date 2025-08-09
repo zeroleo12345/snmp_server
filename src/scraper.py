@@ -158,9 +158,9 @@ def main():
         try:
             mib = Mib(ip=ip, port=161)
             metrics = [
+                'sysName',
                 'hh3cLswSysCpuRatio',
                 # 'system',
-                # 'sysName',
                 # 'ifDescr',
                 # 'ifOperStatus',
                 # 'ifHCInOctets',
