@@ -20,15 +20,15 @@ from settings import log, COMMUNITY_NAME
 
 class Mib(object):
     oid_map = {
-        'sysName': ['1.3.6.1.2.1.1.5.0', {}],
-        'ifDescr': ['1.3.6.1.2.1.2.2.1.2', {}], # interface名称
-        'ifOperStatus': ['1.3.6.1.2.1.2.2.1.8', {'1': 'up', '2': 'down'}], # interace状态
-        'ifHighSpeed': ['1.3.6.1.2.1.31.1.1.1.15', {}], # 百兆-100, 千兆-1000
-        'ifInOctets': ['1.3.6.1.2.1.2.2.1.10', {}], #
-        'ifHCInOctets': ['1.3.6.1.2.1.31.1.1.1.6', {}], # 取端口入方向字节数
-        'ifHCOutOctets': ['1.3.6.1.2.1.31.1.1.1.10', {}], # 取端口出方向字节数
-        'hh3cEntityExtCpuUsage': ['1.3.6.1.4.1.25506.2.6.1.1.1.1.6', {}], # 单板CPU利用率
-        'hh3cEntityExtMemUsage': ['1.3.6.1.4.1.25506.2.6.1.1.1.1.8', {}], # 单板内存利用率
+        'sysName': {'node_oid': '1.3.6.1.2.1.1.5', 'child_oid': '0', 'dictionary': {}},
+        'ifDescr': {'node_oid': '1.3.6.1.2.1.2.2.1.2', 'dictionary': {}}, # interface名称
+        'ifOperStatus': {'node_oid': '1.3.6.1.2.1.2.2.1.8', 'child_oid': '1', 'dictionary': {'1': 'up', '2': 'down'}}, # interace状态
+        'ifHighSpeed': {'node_oid': '1.3.6.1.2.1.31.1.1.1.15', 'dictionary': {}}, # 百兆-100, 千兆-1000
+        'ifInOctets': {'node_oid': '1.3.6.1.2.1.2.2.1.10', 'dictionary': {}}, #
+        'ifHCInOctets': {'node_oid': '1.3.6.1.2.1.31.1.1.1.6', 'dictionary': {}}, # 取端口入方向字节数
+        'ifHCOutOctets': {'node_oid': '1.3.6.1.2.1.31.1.1.1.10', 'dictionary': {}}, # 取端口出方向字节数
+        'hh3cEntityExtCpuUsage': {'node_oid': '1.3.6.1.4.1.25506.2.6.1.1.1.1.6', 'child_oid': '11', 'dictionary': {}}, # 单板CPU利用率
+        'hh3cEntityExtMemUsage': {'node_oid': '1.3.6.1.4.1.25506.2.6.1.1.1.1.8', 'child_oid': '1', 'dictionary': {}}, # 单板内存利用率
     }
 
     def __init__(self, ip, port=161):
@@ -69,15 +69,17 @@ class Mib(object):
         self.context = ContextData()
         
     def get(self, metric_name):
+        node_oid = self.oid_map[metric_name]['node_oid']
+        child_oid = self.oid_map[metric_name]['child_oid']
         # ObjectIdentity 类负责 MIB 对象的识别:
 
         # 方法1: 指定要查询的 OID 对象或名称
-        _id = self.oid_map[metric_name][0]
-        log.info(f'getting metric: "{metric_name}", oid: {_id}')
-        oid = ObjectIdentity(_id)
+        # log.info(f'getting metric: "{metric_name}", node_oid: {node_oid}, child_oid: {child_oid}')
+        # oid = ObjectIdentity(f'{node_oid}.{child_oid}')
         
         # 方法2: 通过oid名字查询
-        #  oid = ObjectIdentity('SNMPv2-MIB', 'sysName', 0)
+        log.info(f'getting metric: "{metric_name}", node_oid: {node_oid}, child_oid: {child_oid}')
+        oid = ObjectIdentity('SNMPv2-MIB', metric_name, child_oid)
 
         # 使用 ObjectType 类初始化查询对象:
         obj = ObjectType(oid)
@@ -98,15 +100,15 @@ class Mib(object):
             log.info(f'111: {i}')
 
 
-    def get_all(self, metric_name):
+    def walk(self, metric_name):
         """
         这个函数是查询接口列表, 和上面查询 sysName 的区别是使用了 nextCmd 来获取一个 MIB 子树的全部内容
         主要是 `lexicographicMode=False` 参数, 默认为 `True`, 会一直查询到 MIB 树结束.
         """
         # 方法1: 指定要查询的 OID 对象或名称
-        _id = self.oid_map[metric_name][0]
-        log.info(f'getting metric: "{metric_name}", oid: {_id}')
-        oid = ObjectIdentity(_id)
+        node_oid = self.oid_map[metric_name]['node_oid']
+        log.info(f'getting metric: "{metric_name}", node_oid: {node_oid}')
+        oid = ObjectIdentity(node_oid)
 
         # 方法2: 通过oid名字查询
         #  oid = ObjectIdentity('SNMPv2-MIB', 'ifDescr')
@@ -128,7 +130,7 @@ class Mib(object):
                     return
                 for iface in varBinds:
                     value = str(iface._ObjectType__args[1])
-                    human_read_value = self.oid_map[metric_name][1].get(value, value)
+                    human_read_value = self.oid_map[metric_name]['dictionary'].get(value, value)
                     log.info(f'222: {iface} ({human_read_value})')
         except StopIteration:
             pass
@@ -148,22 +150,22 @@ def main():
         try:
             mib = Mib(ip=ip, port=161)
             mib.get('sysName')
-            log.info('============================')
-            mib.get_all('ifDescr')
-            log.info('============================')
-            mib.get_all('ifOperStatus')
-            log.info('============================')
-            mib.get_all('ifHCInOctets')
-            log.info('============================')
-            mib.get_all('ifHCOutOctets')
-            log.info('============================')
-            mib.get_all('hh3cEntityExtCpuUsage')
-            log.info('============================')
-            mib.get_all('hh3cEntityExtMemUsage')
-            log.info('============================')
-            mib.get_all('hh3cLswSysCpuRatio')
-            log.info('============================')
-            mib.get_all('hh3cLswSysMemoryRatio')
+            # log.info('============================')
+            # mib.walk('ifDescr')
+            # log.info('============================')
+            # mib.walk('ifOperStatus')
+            # log.info('============================')
+            # mib.walk('ifHCInOctets')
+            # log.info('============================')
+            # mib.walk('ifHCOutOctets')
+            # log.info('============================')
+            # mib.get('hh3cEntityExtCpuUsage')
+            # log.info('============================')
+            # mib.walk('hh3cEntityExtMemUsage')
+            # log.info('============================')
+            # mib.walk('hh3cLswSysCpuRatio')
+            # log.info('============================')
+            # mib.walk('hh3cLswSysMemoryRatio')
         except Exception as e:
             log.critical(traceback.format_exc())
             sentry_sdk.capture_exception(e)
