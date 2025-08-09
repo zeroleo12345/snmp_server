@@ -27,8 +27,10 @@ class Mib(object):
         'ifOperStatus': {'node_oid': '1.3.6.1.2.1.2.2.1.8', 'child': 1, 'dictionary': {'1': 'up', '2': 'down'}}, # interace状态
         'ifHighSpeed': {'node_oid': '1.3.6.1.2.1.31.1.1.1.15', 'dictionary': {}}, # 百兆-100, 千兆-1000
         'ifInOctets': {'node_oid': '1.3.6.1.2.1.2.2.1.10', 'dictionary': {}}, #
-        'ifHCInOctets': {'node_oid': '1.3.6.1.2.1.31.1.1.1.6', 'dictionary': {}}, # 取端口入方向字节数
-        'ifHCOutOctets': {'node_oid': '1.3.6.1.2.1.31.1.1.1.10', 'dictionary': {}}, # 取端口出方向字节数
+        'ifInOctets': {'node_oid': '1.3.6.1.2.1.2.2.1.10', 'dictionary': {}}, # 入方向字节数
+        'ifOutOctets': {'node_oid': '1.3.6.1.2.1.2.2.1.16', 'dictionary': {}}, # 出方向字节数
+        'ifHCInOctets': {'node_oid': '1.3.6.1.2.1.31.1.1.1.6', 'dictionary': {}}, # 入方向字节数
+        'ifHCOutOctets': {'node_oid': '1.3.6.1.2.1.31.1.1.1.10', 'dictionary': {}}, # 出方向字节数
         'hh3cLswSysCpuRatio': {'node_oid': '1.3.6.1.4.1.25506.8.35.18.1.23', 'child': 0, 'dictionary': {}}, # 取端口出方向字节数
         # 'hh3cEntityExtCpuUsage': {'node_oid': '1.3.6.1.4.1.25506.2.6.1.1.1.1.6', 'child': 11, 'dictionary': {}}, # 单板CPU利用率
         # 'hh3cEntityExtMemUsage': {'node_oid': '1.3.6.1.4.1.25506.2.6.1.1.1.1.8', 'child': 1, 'dictionary': {}}, # 单板内存利用率
