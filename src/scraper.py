@@ -22,16 +22,16 @@ from settings import log, COMMUNITY_NAME
 class Mib(object):
     msr3600 = {
         'system': {'node_oid': '1.3.6.1.2.1.1', 'dictionary': {}},
-        'sysName': {'child_oid': '1.3.6.1.2.1.1.5', 'dictionary': {}}, # .0
+        'sysName': {'node_oid': '1.3.6.1.2.1.1.5', 'child': 0, 'dictionary': {}},
         'ifDescr': {'node_oid': '1.3.6.1.2.1.2.2.1.2', 'dictionary': {}}, # interface名称
-        'ifOperStatus': {'node_oid': '1.3.6.1.2.1.2.2.1.8', 'child_oid': '1', 'dictionary': {'1': 'up', '2': 'down'}}, # interace状态
+        'ifOperStatus': {'node_oid': '1.3.6.1.2.1.2.2.1.8', 'child': 1, 'dictionary': {'1': 'up', '2': 'down'}}, # interace状态
         'ifHighSpeed': {'node_oid': '1.3.6.1.2.1.31.1.1.1.15', 'dictionary': {}}, # 百兆-100, 千兆-1000
         'ifInOctets': {'node_oid': '1.3.6.1.2.1.2.2.1.10', 'dictionary': {}}, #
         'ifHCInOctets': {'node_oid': '1.3.6.1.2.1.31.1.1.1.6', 'dictionary': {}}, # 取端口入方向字节数
         'ifHCOutOctets': {'node_oid': '1.3.6.1.2.1.31.1.1.1.10', 'dictionary': {}}, # 取端口出方向字节数
-        'hh3cLswSysCpuRatio': {'child_oid': '1.3.6.1.4.1.25506.8.35.18.1.3', 'dictionary': {}}, # 取端口出方向字节数
-        # 'hh3cEntityExtCpuUsage': {'node_oid': '1.3.6.1.4.1.25506.2.6.1.1.1.1.6', 'child_oid': '11', 'dictionary': {}}, # 单板CPU利用率
-        # 'hh3cEntityExtMemUsage': {'node_oid': '1.3.6.1.4.1.25506.2.6.1.1.1.1.8', 'child_oid': '1', 'dictionary': {}}, # 单板内存利用率
+        'hh3cLswSysCpuRatio': {'node_oid': '1.3.6.1.4.1.25506.8.35.18.1.23', 'child': 0, 'dictionary': {}}, # 取端口出方向字节数
+        # 'hh3cEntityExtCpuUsage': {'node_oid': '1.3.6.1.4.1.25506.2.6.1.1.1.1.6', 'child': 11, 'dictionary': {}}, # 单板CPU利用率
+        # 'hh3cEntityExtMemUsage': {'node_oid': '1.3.6.1.4.1.25506.2.6.1.1.1.1.8', 'child': 1, 'dictionary': {}}, # 单板内存利用率
     }
 
     def __init__(self, ip, port=161):
@@ -72,14 +72,15 @@ class Mib(object):
         self.context = ContextData()
         
     def get_child(self, metric_name):
-        child_oid = self.msr3600[metric_name]['child_oid']
+        node_oid = self.msr3600[metric_name]['node_oid']
+        child = self.msr3600[metric_name]['child']
         # ObjectIdentity 类负责 MIB 对象的识别:
 
         # 方法1: 指定要查询的 OID 对象或名称
-        oid = ObjectIdentity(child_oid)
+        oid = ObjectIdentity(f'{node_oid}.{child}')
         
         # 方法2: 通过oid名字查询
-        # oid = ObjectIdentity('SNMPv2-MIB', metric_name, child_oid)
+        # oid = ObjectIdentity('SNMPv2-MIB', metric_name, child)
 
         # 使用 ObjectType 类初始化查询对象:
         obj = ObjectType(oid)
@@ -135,7 +136,7 @@ class Mib(object):
             pass
 
     def get_or_walk(self, metric_name):
-        if 'child_oid' in self.msr3600.get(metric_name, {}):
+        if 'child' in self.msr3600.get(metric_name, {}):
             log.info(f'get_child metric: "{metric_name}"')
             self.get_child(metric_name)
         else:
