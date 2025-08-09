@@ -20,25 +20,28 @@ services:
     ports:
       - "162:162/udp"
     environment:
+      ENTRYPOINT: "${ENTRYPOINT:-/app/bin/snmp_trap_alert_server.sh}"
       SNMP_PORT: 162
     volumes:
       - .:/app
       - ./mibs/:/root/.pysnmp/mibs/
-    entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/snmp_trap_alert_server.sh; fi'
-    restart: "${RESTART_POLICY}"
+    entrypoint: sh -c 'if [ -z "$$ENTRYPOINT" ]; then echo "ENTRYPOINT is empty!"; exit 0; fi; exec $$ENTRYPOINT'
+    restart: "${RESTART_POLICY:-on-failure}"
     logging: *default_logging
 
-  metric:
+  scraper:
     platform: linux/amd64
     container_name: snmp_server_to_agent
     build:
        context: .
        dockerfile: ./Dockerfile
     image: snmp_collector:2.0.0
+    environment:
+      ENTRYPOINT: "${ENTRYPOINT:-/app/bin/scrape_from_agent.sh}"
     volumes:
       - .:/app
-    entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/snmp_server_to_agent.sh; fi'
-    restart: "${RESTART_POLICY}"
+    entrypoint: sh -c 'if [ -z "$$ENTRYPOINT" ]; then echo "ENTRYPOINT is empty!"; exit 0; fi; exec $$ENTRYPOINT'
+    restart: "${RESTART_POLICY:-on-failure}"
     logging: *default_logging
     networks:
       - pppoe_system
