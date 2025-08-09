@@ -71,14 +71,14 @@ class Mib(object):
     def get(self, metric_name):
         node_oid = self.oid_map[metric_name]['node_oid']
         child_oid = self.oid_map[metric_name]['child_oid']
+        log.info(f'getting metric: "{metric_name}", node_oid: {node_oid}, child_oid: {child_oid}')
+
         # ObjectIdentity 类负责 MIB 对象的识别:
 
         # 方法1: 指定要查询的 OID 对象或名称
-        # log.info(f'getting metric: "{metric_name}", node_oid: {node_oid}, child_oid: {child_oid}')
         # oid = ObjectIdentity(f'{node_oid}.{child_oid}')
         
         # 方法2: 通过oid名字查询
-        log.info(f'getting metric: "{metric_name}", node_oid: {node_oid}, child_oid: {child_oid}')
         oid = ObjectIdentity('SNMPv2-MIB', metric_name, child_oid)
 
         # 使用 ObjectType 类初始化查询对象:
@@ -105,13 +105,14 @@ class Mib(object):
         这个函数是查询接口列表, 和上面查询 sysName 的区别是使用了 nextCmd 来获取一个 MIB 子树的全部内容
         主要是 `lexicographicMode=False` 参数, 默认为 `True`, 会一直查询到 MIB 树结束.
         """
-        # 方法1: 指定要查询的 OID 对象或名称
         node_oid = self.oid_map[metric_name]['node_oid']
         log.info(f'getting metric: "{metric_name}", node_oid: {node_oid}')
+
+        # 方法1: 指定要查询的 OID 对象或名称
         oid = ObjectIdentity(node_oid)
 
         # 方法2: 通过oid名字查询
-        #  oid = ObjectIdentity('SNMPv2-MIB', 'ifDescr')
+        #  oid = ObjectIdentity('SNMPv2-MIB', metric_name)
 
         # 使用 ObjectType 类初始化查询对象:
         obj = ObjectType(oid)
