@@ -20,6 +20,7 @@ from settings import log, COMMUNITY_NAME
 
 class Mib(object):
     oid_map = {
+        'system': {'node_oid': '1.3.6.1.2.1.1', 'dictionary': {}},
         'sysName': {'node_oid': '1.3.6.1.2.1.1.5', 'child_oid': '0', 'dictionary': {}},
         'ifDescr': {'node_oid': '1.3.6.1.2.1.2.2.1.2', 'dictionary': {}}, # interface名称
         'ifOperStatus': {'node_oid': '1.3.6.1.2.1.2.2.1.8', 'child_oid': '1', 'dictionary': {'1': 'up', '2': 'down'}}, # interace状态
@@ -68,14 +69,11 @@ class Mib(object):
         # 实例化上下文对象
         self.context = ContextData()
         
-    def get(self, metric_name):
-        node_oid = self.oid_map[metric_name]['node_oid']
-        child_oid = self.oid_map[metric_name]['child_oid']
-        log.info(f'getting metric: "{metric_name}", node_oid: {node_oid}, child_oid: {child_oid}')
-
+    def get_child(self, metric_name, child_oid):
         # ObjectIdentity 类负责 MIB 对象的识别:
 
         # 方法1: 指定要查询的 OID 对象或名称
+        # node_oid = self.oid_map[metric_name]['node_oid']
         # oid = ObjectIdentity(f'{node_oid}.{child_oid}')
         
         # 方法2: 通过oid名字查询
@@ -105,14 +103,12 @@ class Mib(object):
         这个函数是查询接口列表, 和上面查询 sysName 的区别是使用了 nextCmd 来获取一个 MIB 子树的全部内容
         主要是 `lexicographicMode=False` 参数, 默认为 `True`, 会一直查询到 MIB 树结束.
         """
-        node_oid = self.oid_map[metric_name]['node_oid']
-        log.info(f'getting metric: "{metric_name}", node_oid: {node_oid}')
-
         # 方法1: 指定要查询的 OID 对象或名称
-        oid = ObjectIdentity(node_oid)
+        # node_oid = self.oid_map[metric_name]['node_oid']
+        # oid = ObjectIdentity(node_oid)
 
         # 方法2: 通过oid名字查询
-        #  oid = ObjectIdentity('SNMPv2-MIB', metric_name)
+        oid = ObjectIdentity('SNMPv2-MIB', metric_name)
 
         # 使用 ObjectType 类初始化查询对象:
         obj = ObjectType(oid)
@@ -136,6 +132,16 @@ class Mib(object):
         except StopIteration:
             pass
 
+    def get_or_walk(self, metric_name):
+        node_oid = self.oid_map[metric_name]['node_oid']
+        child_oid = self.oid_map[metric_name].get('child_oid', '')
+        log.info(f'getting metric: "{metric_name}", node_oid: {node_oid}')
+
+        if child_oid:
+            self.get_child(metric_name, child_oid)
+        else:
+            self.walk(metric_name)
+
 
 def get_target_ips() -> list:
     ips = []
@@ -150,23 +156,20 @@ def main():
     for ip in get_target_ips():
         try:
             mib = Mib(ip=ip, port=161)
-            mib.get('sysName')
-            # log.info('============================')
-            # mib.walk('ifDescr')
-            # log.info('============================')
-            # mib.walk('ifOperStatus')
-            # log.info('============================')
-            # mib.walk('ifHCInOctets')
-            # log.info('============================')
-            # mib.walk('ifHCOutOctets')
-            # log.info('============================')
-            # mib.get('hh3cEntityExtCpuUsage')
-            # log.info('============================')
-            # mib.walk('hh3cEntityExtMemUsage')
-            # log.info('============================')
-            # mib.walk('hh3cLswSysCpuRatio')
-            # log.info('============================')
-            # mib.walk('hh3cLswSysMemoryRatio')
+            metrics = [
+                'system',
+                # 'sysName',
+                # 'ifDescr',
+                # 'ifOperStatus',
+                # 'ifHCInOctets',
+                # 'ifHCOutOctets',
+                # 'hh3cEntityExtCpuUsage',
+                # 'hh3cEntityExtMemUsage',
+                # 'hh3cLswSysCpuRatio',
+                # 'hh3cLswSysMemoryRatio'
+            ]
+            for metric in metrics:
+                mib.get_or_walk(metric)
         except Exception as e:
             log.critical(traceback.format_exc())
             sentry_sdk.capture_exception(e)
