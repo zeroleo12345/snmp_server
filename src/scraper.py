@@ -134,11 +134,12 @@ class Mib(object):
 
     def get_or_walk(self, metric_name):
         child_oid = self.oid_map.get(metric_name, {}).get('child_oid', '')
-        log.info(f'getting metric: "{metric_name}"')
 
         if child_oid:
+            log.info(f'get_child metric: "{metric_name}"')
             self.get_child(metric_name, child_oid)
         else:
+            log.info(f'walk metric: "{metric_name}"')
             self.walk(metric_name)
 
 
@@ -156,7 +157,8 @@ def main():
         try:
             mib = Mib(ip=ip, port=161)
             metrics = [
-                'system',
+                'hh3cLswSysCpuRatio',
+                # 'system',
                 # 'sysName',
                 # 'ifDescr',
                 # 'ifOperStatus',
