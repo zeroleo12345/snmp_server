@@ -2,7 +2,7 @@ version: '3.7'
 
 
 x-logging:
-  &default_logging
+  &std_logging
   driver: "json-file"
   options:
     max-size: "10m"
@@ -26,7 +26,7 @@ services:
       - ./mibs/:/root/.pysnmp/mibs/
     entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/snmp_trap_alert_server.sh; fi'
     restart: "${RESTART_POLICY}"
-    logging: *default_logging
+    logging: *std_logging
 
   metric:
     platform: linux/amd64
@@ -39,7 +39,7 @@ services:
       - .:/app
     entrypoint: sh -c 'if [ -n "$ENTRYPOINT" ]; then echo "exec $ENTRYPOINT"; exec $ENTRYPOINT; else exec /app/bin/snmp_server_to_agent.sh; fi'
     restart: "${RESTART_POLICY}"
-    logging: *default_logging
+    logging: *std_logging
     networks:
       - pppoe_system
 
